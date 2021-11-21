@@ -7,15 +7,19 @@ import {
   Req,
   Res,
   Get,
+  ClassSerializerInterceptor,
+  UseInterceptors,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { AuthenticationService } from './authentication.service';
+import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import JwtAuthenticationGuard from './guards/jwt-authentication.guard';
 import { LocalAuthenticationGuard } from './guards/local-authentication.guard';
 import { RequestWithUser } from './interfaces/request-with-user.interfaces';
 
 @Controller('authentication')
+@UseInterceptors(ClassSerializerInterceptor)
 export class AuthenticationController {
   constructor(private readonly authenticationService: AuthenticationService) {}
 
@@ -28,15 +32,14 @@ export class AuthenticationController {
   @UseGuards(LocalAuthenticationGuard)
   @Post('log-in')
   async logIn(
+    @Body() loginData: LoginDto,
     @Req() request: RequestWithUser,
-    @Res({ passthrough: true }) response: Response,
+    @Res() response: Response,
   ) {
     const { user } = request;
     const cookie = this.authenticationService.getCookieWithJwtToken(user.id);
     response.cookie('Set-Cookie', cookie);
-    user.password = undefined;
-
-    return user;
+    response.send(user);
   }
 
   @UseGuards(JwtAuthenticationGuard)
@@ -53,7 +56,6 @@ export class AuthenticationController {
   @Get()
   authenticate(@Req() request: RequestWithUser) {
     const user = request.user;
-    user.password = undefined;
     return user;
   }
 }

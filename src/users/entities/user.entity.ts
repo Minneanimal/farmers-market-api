@@ -1,8 +1,17 @@
 import { Order } from 'src/orders/entities/order.entity';
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  OneToMany,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { Exclude } from 'class-transformer';
+import { Kitchen } from 'src/kitchens/entities/kitchen.entity';
 
 @Entity()
-export class User {
+export class User extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -16,8 +25,12 @@ export class User {
   lastname: string;
 
   @Column()
+  @Exclude()
   password: string;
 
   @OneToMany(() => Order, (order) => order.user)
   orders: Order[];
+
+  @OneToOne(() => Kitchen, (kitchen) => kitchen.owner)
+  kitchen: Kitchen;
 }

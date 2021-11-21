@@ -21,7 +21,6 @@ export class AuthenticationService {
         ...registrationData,
         password: hashedPassword,
       });
-      createdUser.password = undefined;
       return createdUser;
     } catch (error) {
       if (error?.code === PostgresErrorCode.UniqueViolation) {
@@ -37,11 +36,10 @@ export class AuthenticationService {
     }
   }
 
-  async getAuthenticatedUser(email: string, hashedPassword: string) {
+  async getAuthenticatedUser(email: string, plainTextPassword: string) {
     try {
       const user = await this.userService.getByEmail(email);
-      await this.verifyPassword(user.password, hashedPassword);
-      user.password = undefined;
+      await this.verifyPassword(plainTextPassword, user.password);
       return user;
     } catch (error) {
       throw new HttpException(
