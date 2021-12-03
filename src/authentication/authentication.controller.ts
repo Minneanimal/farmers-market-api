@@ -10,8 +10,10 @@ import {
   ClassSerializerInterceptor,
   UseInterceptors,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Response } from 'express';
 import { AuthenticationService } from './authentication.service';
+import { LoginUserDto } from './dto/login-user.dto';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import JwtAuthenticationGuard from './guards/jwt-authentication.guard';
@@ -21,7 +23,10 @@ import { RequestWithUser } from './interfaces/request-with-user.interfaces';
 @Controller('authentication')
 @UseInterceptors(ClassSerializerInterceptor)
 export class AuthenticationController {
-  constructor(private readonly authenticationService: AuthenticationService) {}
+  constructor(
+    private readonly authenticationService: AuthenticationService,
+    private readonly configService: ConfigService,
+  ) {}
 
   @Post('register')
   async register(@Body() registrationData: RegisterDto) {
@@ -31,24 +36,20 @@ export class AuthenticationController {
   @HttpCode(200)
   @UseGuards(LocalAuthenticationGuard)
   @Post('log-in')
-  async logIn(
-    @Body() loginData: LoginDto,
-    @Req() request: RequestWithUser,
-    @Res() response: Response,
-  ) {
+  async logIn(@Req() request: RequestWithUser) {
     const { user } = request;
-    const cookie = this.authenticationService.getCookieWithJwtToken(user.id);
-    response.cookie('Set-Cookie', cookie);
-    response.send(user);
+    const access_token = this.authenticationService.createToken(user.id);
+    const loggedInUser: LoginUserDto = {
+      user,
+      access_token,
+      expiresIn: this.configService.get('authentication.jwt_expiration_time'),
+    };
+    return loggedInUser;
   }
 
   @UseGuards(JwtAuthenticationGuard)
   @Post('log-out')
   async logOut(@Req() request: RequestWithUser, @Res() response: Response) {
-    response.cookie(
-      'Set-Cookie',
-      this.authenticationService.getCookieForLogOut(),
-    );
     return response.sendStatus(200);
   }
 

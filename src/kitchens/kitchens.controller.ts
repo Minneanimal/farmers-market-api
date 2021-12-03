@@ -44,4 +44,10 @@ export class KitchensController {
   remove(@Param('id') id: string) {
     return this.kitchensService.remove(+id);
   }
+
+  @UseGuards(JwtAuthenticationGuard)
+  @Get(':name')
+  getByName(@Param() name: string) {
+    return this.kitchensService.getByName(name);
+  }
 }

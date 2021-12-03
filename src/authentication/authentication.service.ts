@@ -3,15 +3,14 @@ import { UsersService } from 'src/users/users.service';
 import { RegisterDto } from './dto/register.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
 import { TokenPayload } from './interfaces/token-payload.interface';
+import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class AuthenticationService {
   constructor(
     private userService: UsersService,
     private readonly jwtService: JwtService,
-    private readonly configService: ConfigService,
   ) {}
 
   async register(registrationData: RegisterDto) {
@@ -21,6 +20,7 @@ export class AuthenticationService {
         ...registrationData,
         password: hashedPassword,
       });
+      createdUser.password = undefined;
       return createdUser;
     } catch (error) {
       if (error?.code === PostgresErrorCode.UniqueViolation) {
@@ -49,16 +49,9 @@ export class AuthenticationService {
     }
   }
 
-  public getCookieForLogOut() {
-    return `Authentication=; HttpOnly; Path=/; Max-Age=0`;
-  }
-
-  getCookieWithJwtToken(userId: number) {
-    const payload: TokenPayload = { userId };
-    const token = this.jwtService.sign(payload);
-    return `Authentication=${token}; HttpOnly; Path=/; Max-Age=${this.configService.get(
-      'JWT_EXPIRATION_TIME',
-    )}`;
+  createToken(userId: number): string {
+    const payload: TokenPayload = { sub: userId };
+    return this.jwtService.sign(payload);
   }
 
   private async verifyPassword(
@@ -75,6 +68,14 @@ export class AuthenticationService {
         HttpStatus.BAD_REQUEST,
       );
     }
+  }
+
+  async validateUser(payload: TokenPayload): Promise<User> {
+    const user = await this.userService.getById(payload.sub);
+    if (!user) {
+      throw new HttpException('Invalid token', HttpStatus.UNAUTHORIZED);
+    }
+    return user;
   }
 
   findAll() {

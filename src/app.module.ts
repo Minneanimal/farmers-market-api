@@ -9,10 +9,12 @@ import { DatabaseModule } from './database/database.module';
 import { KitchensModule } from './kitchens/kitchens.module';
 import { OrdersModule } from './orders/orders.module';
 import { AuthenticationModule } from './authentication/authentication.module';
+import configuration from './config/configuration';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
+      load: [configuration],
       validationSchema: Joi.object({
         POSTGRES_HOST: Joi.string().required(),
         POSTGRES_PORT: Joi.number().required(),
@@ -20,7 +22,8 @@ import { AuthenticationModule } from './authentication/authentication.module';
         POSTGRES_PASSWORD: Joi.string().required(),
         POSTGRES_DB: Joi.string().required(),
         JWT_SECRET: Joi.string().required(),
-        JWT_EXPIRATION_TIME: Joi.string().required(),
+        JWT_EXPIRATION_TIME: Joi.number().required(),
+        PRODUCTION: Joi.boolean().required(),
         PORT: Joi.number(),
       }),
     }),

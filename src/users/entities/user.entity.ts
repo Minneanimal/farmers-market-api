@@ -25,7 +25,7 @@ export class User extends BaseEntity {
   lastname: string;
 
   @Column()
-  @Exclude()
+  @Exclude({ toPlainOnly: true })
   password: string;
 
   @OneToMany(() => Order, (order) => order.user)

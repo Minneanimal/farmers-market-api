@@ -7,7 +7,6 @@ import { LocalStrategy } from './local-strategy';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './jwt.strategy';
-import { UsersService } from '../users/users.service';
 
 @Module({
   imports: [
@@ -17,9 +16,9 @@ import { UsersService } from '../users/users.service';
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
-        secret: configService.get('JWT_SECRET'),
+        secret: configService.get('authentication.secret'),
         signOptions: {
-          expiresIn: `${configService.get('JWT_EXPIRATION_TIME')}s`,
+          expiresIn: configService.get('authentication.jwt_expiration_time'),
         },
       }),
       inject: [ConfigService],
