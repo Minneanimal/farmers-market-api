@@ -9,6 +9,7 @@ import { DatabaseModule } from './database/database.module';
 import { KitchensModule } from './kitchens/kitchens.module';
 import { OrdersModule } from './orders/orders.module';
 import { AuthenticationModule } from './authentication/authentication.module';
+import { SearchModule } from './search/search.module';
 import configuration from './config/configuration';
 
 @Module({
@@ -33,6 +34,7 @@ import configuration from './config/configuration';
     KitchensModule,
     OrdersModule,
     AuthenticationModule,
+    SearchModule,
   ],
   controllers: [AppController],
   providers: [AppService],
