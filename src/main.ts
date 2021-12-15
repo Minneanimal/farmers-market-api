@@ -3,6 +3,8 @@ import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.int
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
+import { config } from 'aws-sdk';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const corsOptions: CorsOptions = {
@@ -11,6 +13,12 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     cors: corsOptions,
     logger: console,
+  });
+  const configService = app.get(ConfigService);
+  config.update({
+    accessKeyId: configService.get('aws.access_key'),
+    secretAccessKey: configService.get('aws.secret'),
+    region: configService.get('aws.region'),
   });
   app.useGlobalPipes(new ValidationPipe());
   await app.listen(3000);

@@ -24,7 +24,7 @@ export class ProductsController {
   @Get()
   async getProducts(@Query('search') search: string) {
     if (search) {
-      return this.productsService.searchForPosts(search);
+      return this.productsService.searchForProducts(search);
     }
     return this.productsService.findAll();
   }

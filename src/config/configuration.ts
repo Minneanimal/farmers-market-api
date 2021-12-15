@@ -17,4 +17,9 @@ export default () => ({
     username: process.env.ELASTICSEARCH_USERNAME,
     password: process.env.ELASTICSEARCH_PASSWORD,
   },
+  aws: {
+    region: process.env.AWS_REGION,
+    access_key: process.env.AWS_ACCESS_KEY_ID,
+    secret: process.env.AWS_SECRET_ACCESS_KEY,
+  },
 });

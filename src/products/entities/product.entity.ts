@@ -1,3 +1,4 @@
+import { PublicFile } from 'src/files/entities/public-file.entity';
 import { Kitchen } from 'src/kitchens/entities/kitchen.entity';
 import { OrderDetails } from 'src/orders/entities/order-details.entity';
 import {
@@ -18,6 +19,9 @@ export class Product {
 
   @ManyToOne(() => Kitchen, (kitchen) => kitchen.products)
   kitchen: Kitchen;
+
+  @OneToMany(() => PublicFile, (files) => files.product)
+  files: PublicFile[];
 
   @OneToMany(() => OrderDetails, (orderDetails) => orderDetails.products)
   orderDetails: OrderDetails;
