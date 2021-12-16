@@ -14,7 +14,11 @@ export class FilesService {
     private readonly configService: ConfigService,
   ) {}
 
-  async uploadPublicFile(dataBuffer: Buffer, filename: string) {
+  async uploadPublicFile(
+    productId: number,
+    dataBuffer: Buffer,
+    filename: string,
+  ) {
     const s3 = new S3();
     const uploadResult = await s3
       .upload({
@@ -25,6 +29,9 @@ export class FilesService {
       .promise();
 
     const newFile = this.publicFilesRepository.create({
+      product: {
+        id: productId,
+      },
       key: uploadResult.Key,
       url: uploadResult.Location,
     });

@@ -1,5 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { FilesService } from 'src/files/files.service';
 import { In, Repository } from 'typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -12,6 +18,7 @@ export class ProductsService {
     @InjectRepository(Product)
     private productRepository: Repository<Product>,
     private productSearchService: ProductSearchService,
+    private readonly filesService: FilesService,
   ) {}
   create(createProductDto: CreateProductDto) {
     return 'This action adds a new product';
@@ -31,6 +38,17 @@ export class ProductsService {
 
   remove(id: number) {
     return `This action removes a #${id} product`;
+  }
+
+  async getById(id: number) {
+    const product = await this.productRepository.findOne({ id });
+    if (product) {
+      return product;
+    }
+    throw new HttpException(
+      'Product with this id does not exist',
+      HttpStatus.NOT_FOUND,
+    );
   }
 
   async updateProduct(id: number, product: UpdateProductDto) {
@@ -62,5 +80,18 @@ export class ProductsService {
     return this.productRepository.find({
       where: { id: In(ids) },
     });
+  }
+
+  async addProductImage(
+    productId: number,
+    imageBuffer: Buffer,
+    filename: string,
+  ) {
+    const avatar = await this.filesService.uploadPublicFile(
+      productId,
+      imageBuffer,
+      filename,
+    );
+    return avatar;
   }
 }
