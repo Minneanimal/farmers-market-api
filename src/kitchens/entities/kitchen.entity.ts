@@ -1,6 +1,7 @@
 import { Product } from 'src/products/entities/product.entity';
 import { User } from 'src/users/entities/user.entity';
 import {
+  BaseEntity,
   Column,
   Entity,
   JoinColumn,
@@ -10,7 +11,7 @@ import {
 } from 'typeorm';
 
 @Entity()
-export class Kitchen {
+export class Kitchen extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 

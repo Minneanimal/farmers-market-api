@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FilesService } from 'src/files/files.service';
+import { Kitchen } from 'src/kitchens/entities/kitchen.entity';
 import { In, Repository } from 'typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -20,8 +21,24 @@ export class ProductsService {
     private productSearchService: ProductSearchService,
     private readonly filesService: FilesService,
   ) {}
-  create(createProductDto: CreateProductDto) {
-    return 'This action adds a new product';
+  async create(createProductDto: CreateProductDto) {
+    const kitchen = await Kitchen.findOne(createProductDto.kitchenId);
+    try {
+      const createdProduct = this.productRepository.create({
+        ...createProductDto,
+        kitchen,
+      });
+      if (createdProduct) {
+        await this.productRepository.save(createdProduct);
+        await this.productSearchService.indexProduct(createdProduct);
+        return createdProduct;
+      }
+    } catch (error) {
+      throw new HttpException(
+        'Something went wrong',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   findAll() {

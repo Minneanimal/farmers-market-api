@@ -20,7 +20,7 @@ export class KitchensController {
 
   @UseGuards(JwtAuthenticationGuard)
   @Post()
-  create(@Body() createKitchenDto: CreateKitchenDto, @Req() request) {
+  async create(@Body() createKitchenDto: CreateKitchenDto, @Req() request) {
     const authUser = request.user;
     return this.kitchensService.create(createKitchenDto, authUser.id);
   }

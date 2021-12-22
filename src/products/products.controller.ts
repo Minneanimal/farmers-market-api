@@ -34,7 +34,7 @@ export class ProductsController {
 
   @Post()
   @UseGuards(JwtAuthenticationGuard)
-  create(@Body() createProductDto: CreateProductDto) {
+  async create(@Body() createProductDto: CreateProductDto) {
     return this.productsService.create(createProductDto);
   }
 
